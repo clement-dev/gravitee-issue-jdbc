@@ -1,34 +1,10 @@
 version: '3.5'
 
 services:
-  ###################
-  # PROXY
-  ###################
-  traefik:
-   image: "traefik:v2.5"
-   container_name: "traefik"
-   hostname: "traefik"
-   command:
-     - "--log.level=DEBUG"
-     - "--api.dashboard=true"
-     - "--experimental.config.plugin-rewrite.version=v0.3.1"
-     - "--api.insecure=true"
-     - "--entryPoints.web.forwardedHeaders.insecure=true"
-     - "--providers.docker.exposedbydefault=false"
-     - "--entrypoints.web.address=:80"
-   labels:
-     - "traefik.enable=true"
-   ports:
-     - "80:80"
-     - "8080:8080"
-   volumes:
-     - "/var/run/docker.sock:/var/run/docker.sock:ro"
-   networks:
-     - gravitee-net
 
-  ###################
-  # GRAVITEE APIM
-  ###################
+#  ###################
+#  # GRAVITEE APIM
+#  ###################
   elasticsearch:
    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.10.2}
    container_name: gio_apim_elasticsearch
@@ -55,7 +31,7 @@ services:
      - gravitee-net
 
   gateway:
-   image: graviteeio/apim-gateway:3
+   image: graviteeio/apim-gateway:3.12.1
    restart: always
    ports:
      - "0.0.0.0:8082:8082"
@@ -73,7 +49,7 @@ services:
      - gravitee-net
 
   management_api:
-   image: graviteeio/apim-management-api:3
+   image: graviteeio/apim-management-api:3.15.4
    container_name: gio_apim_management_api
    restart: always
    ports:
@@ -84,7 +60,6 @@ services:
    depends_on:
      - db
      - elasticsearch
-     - fakesmtp
    volumes:
      - ./data/logs/apim-management-api:/opt/graviteeio-management-api/logs
      - ./config/gravitee/management/config:/opt/graviteeio-management-api/config
@@ -98,13 +73,9 @@ services:
      - gravitee-net
 
   management_ui:
-   image: graviteeio/apim-management-ui:3
+   image: graviteeio/apim-management-ui:3.15.4
    container_name: gio_apim_management_ui
    restart: always
-   labels:
-     - "traefik.enable=true"
-     - "traefik.http.routers.management_ui.entrypoints=web"
-     - "traefik.http.services.management_ui.loadbalancer.server.port=8080"
    ports:
      - "8084:8080"
    depends_on:
@@ -117,13 +88,9 @@ services:
      - gravitee-net
 
   portal_ui:
-   image: graviteeio/apim-portal-ui:3
+   image: graviteeio/apim-portal-ui:3.15.4
    container_name: gio_apim_portal_ui
    restart: always
-   labels:
-     - "traefik.enable=true"
-     - "traefik.http.routers.portal_ui.entrypoints=web"
-     - "traefik.http.services.portal_ui.loadbalancer.server.port=8080"
    ports:
      - "8085:8080"
    depends_on:
@@ -138,10 +105,6 @@ services:
   fakesmtp:
    image: reachfive/fake-smtp-server:0.8.1
    container_name: fake_smtp
-   labels:
-     - "traefik.enable=true"
-     - "traefik.http.routers.fakesmtp.entrypoints=web"
-     - "traefik.http.services.fakesmtp.loadbalancer.server.port=1080"
    ports:
      - "1080:1080"
      - "1025:1025"
@@ -166,9 +129,20 @@ services:
      networks:
        - gravitee-net
 
+#  mongodb:
+#    image: mongo:${MONGODB_VERSION:-3.6}
+#    container_name: gio_apim_mongodb
+#    restart: always
+#    volumes:
+#      - ./data/data-mongo:/data/db
+#      - ./data/apim-mongodb:/var/log/mongodb
+#    networks:
+#      - gravitee-net
+
 networks:
   gravitee-net:
     name: gravitee-net
 
 volumes:
   data-elasticsearch:
+  data-mongo:

@@ -110,7 +110,6 @@ http:
 management:
   type: jdbc                    # repository type
   jdbc:                         # jdbc repository
-    prefix: gravitee            # tables prefix
     url: jdbc:postgresql://db:5432/gravitee   # jdbc url
     username: admin                # jdbc username
     password: admin                 # jdbc password

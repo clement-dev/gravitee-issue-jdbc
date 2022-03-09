@@ -67,12 +67,17 @@
 # For more information about MongoDB configuration, please have a look to:
 # - http://mongodb.github.io/mongo-java-driver/4.1/apidocs/mongodb-driver-core/com/mongodb/MongoClientSettings.Builder.html
 management:
-  type: jdbc                    # repository type
+#  type: jdbc                    # repository type
+#  jdbc: # jdbc repository
+#    prefix: gravitee            # tables prefix
+#    url: jdbc:postgresql://db:5432/gravitee   # jdbc url
+#    username: admin                # jdbc username
+#    password: admin                 # jdbc password
+  type: jdbc               # repository type
   jdbc: # jdbc repository
-    prefix: gravitee            # tables prefix
     url: jdbc:postgresql://db:5432/gravitee   # jdbc url
-    username: admin                # jdbc username
-    password: admin                 # jdbc password
+    username: admin               # jdbc username
+    password: admin               # jdbc password
 #  type: mongodb                  # repository type
 #  mongodb:                       # mongodb repository
 #    #    prefix:                      # collections prefix
@@ -140,10 +145,17 @@ management:
 
 # When defining rate-limiting policy, the gateway has to store data to share with other gateway instances.
 # In this example, we are using MongoDB to store counters.
+#ratelimit:
+#  type: mongodb
+#  mongodb:
+#    uri: mongodb://${ds.mongodb.host}:${ds.mongodb.port}/${ds.mongodb.dbname}
+
 ratelimit:
-  type: mongodb
-  mongodb:
-    uri: mongodb://${ds.mongodb.host}:${ds.mongodb.port}/${ds.mongodb.dbname}
+  type: jdbc
+  jdbc:
+    url: jdbc:postgresql://db:5432/gravitee
+    password: admin
+    username: admin
 
 cache:
   type: ehcache
@@ -315,7 +327,7 @@ ds:
     host: localhost
     port: 27017
   elastic:
-    host: localhost
+    host: elasticsearch
     port: 9200
 
       #system:
