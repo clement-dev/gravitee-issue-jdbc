@@ -37,14 +37,14 @@ services:
      - "0.0.0.0:8082:8082"
      # - "8082"
    depends_on:
-     - db
+     - mongodb
      - elasticsearch
    volumes:
      - ./data/logs/apim-gateway:/opt/graviteeio-gateway/logs
-     - ./config/gravitee/gateway/config:/opt/graviteeio-gateway/config
-     - ./config/gravitee/gateway/jdbc-driver:/opt/graviteeio-gateway/plugins/ext/repository-jdbc
    environment:
       - gravitee_reporters_elasticsearch_endpoints_0=http://elasticsearch:9200
+      - gravitee_management_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
+      - gravitee_ratelimit_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
    networks:
      - gravitee-net
 
@@ -55,16 +55,15 @@ services:
    ports:
      - "8083:8083"
    links:
-     - db
+     - mongodb
      - elasticsearch
    depends_on:
-     - db
+     - mongodb
      - elasticsearch
    volumes:
      - ./data/logs/apim-management-api:/opt/graviteeio-management-api/logs
-     - ./config/gravitee/management/config:/opt/graviteeio-management-api/config
-     - ./config/gravitee/management/jdbc-driver:/opt/graviteeio-management-api/plugins/ext/repository-jdbc
    environment:
+     - gravitee_management_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
      - gravitee_analytics_elasticsearch_endpoints_0=http://elasticsearch:9200
      - gravitee_email_enabled=true
      - gravitee_email_host=fakesmtp
@@ -111,33 +110,15 @@ services:
    networks:
      - gravitee-net
 
-  db:
-     build:
-       context: ./postgres
-       dockerfile: Dockerfile
-     image: "issue/db:0.6.0"
-     restart: always
-     environment:
-       POSTGRES_DB: gravitee
-       POSTGRES_USER: admin
-       POSTGRES_PASSWORD: admin
-       PGDATA: /var/lib/postgresql/data
-     volumes:
-       - ./data/db-postgres:/var/lib/postgresql/data
-     ports:
-       - "0.0.0.0:5455:5432"
-     networks:
-       - gravitee-net
-
-#  mongodb:
-#    image: mongo:${MONGODB_VERSION:-3.6}
-#    container_name: gio_apim_mongodb
-#    restart: always
-#    volumes:
-#      - ./data/data-mongo:/data/db
-#      - ./data/apim-mongodb:/var/log/mongodb
-#    networks:
-#      - gravitee-net
+  mongodb:
+    image: mongo:${MONGODB_VERSION:-3.6}
+    container_name: gio_apim_mongodb
+    restart: always
+    volumes:
+      - ./data/data-mongo:/data/db
+      - ./data/apim-mongodb:/var/log/mongodb
+    networks:
+      - gravitee-net
 
 networks:
   gravitee-net:
