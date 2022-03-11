@@ -1,7 +1,29 @@
 version: '3.5'
 
 services:
-
+  ###################
+  # PROXY
+  ###################
+  traefik:
+   image: "traefik:v2.5"
+   container_name: "traefik"
+   hostname: "traefik"
+   command:
+     - --log.level=DEBUG
+     - --api.dashboard=true
+     - --api.insecure=true
+     - --providers.docker=true
+     - --entryPoints.web.forwardedHeaders.insecure=true
+     - --entrypoints.web.address=:80
+   labels:
+     - "traefik.enable=true"
+   ports:
+     - "80:80"
+     - "8080:8080"
+   volumes:
+     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+   networks:
+     - gravitee-net
 #  ###################
 #  # GRAVITEE APIM
 #  ###################
@@ -34,15 +56,19 @@ services:
    image: graviteeio/apim-gateway:3.12.1
    restart: always
    ports:
-     - "0.0.0.0:8082:8082"
+     - "8082"
      # - "8082"
+   labels:
+     - "traefik.enable=true"
    depends_on:
      - mongodb
+     - redis
      - elasticsearch
    volumes:
      - ./data/logs/apim-gateway:/opt/graviteeio-gateway/logs
    environment:
       - gravitee_reporters_elasticsearch_endpoints_0=http://elasticsearch:9200
+      - ./config/gravitee/gateway/config:/opt/graviteeio-gateway/config
       - gravitee_management_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
       - gravitee_ratelimit_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
    networks:
@@ -117,6 +143,18 @@ services:
     volumes:
       - ./data/data-mongo:/data/db
       - ./data/apim-mongodb:/var/log/mongodb
+    networks:
+      - gravitee-net
+
+  redis:
+    image: redis:6.2
+    container_name: rate-limit-redis
+    restart: always
+    volumes:
+      - ./data/redis:/data
+    command: --requirepass toto
+    ports:
+      - "0.0.0.0:6379:6379"
     networks:
       - gravitee-net
 

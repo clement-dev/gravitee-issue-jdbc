@@ -151,11 +151,15 @@ management:
 #    uri: mongodb://${ds.mongodb.host}:${ds.mongodb.port}/${ds.mongodb.dbname}
 
 ratelimit:
-  type: jdbc
-  jdbc:
-    url: jdbc:postgresql://db:5432/gravitee
-    password: admin
-    username: admin
+#  type: jdbc
+#  jdbc:
+#    url: jdbc:postgresql://db:5432/gravitee
+#    password: admin
+#    username: admin
+  type: redis
+  redis:
+    host: redis
+    password: toto
 
 cache:
   type: ehcache

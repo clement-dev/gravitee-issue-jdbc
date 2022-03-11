@@ -1,0 +1,151 @@
+{
+  "name": "toto",
+  "version": "1.0",
+  "description": "test",
+  "visibility": "PRIVATE",
+  "gravitee": "2.0.0",
+  "flow_mode": "DEFAULT",
+  "resources": [],
+  "properties": [],
+  "members": [
+    {
+      "source": "memory",
+      "sourceId": "admin",
+      "roles": [
+        "bb00454e-7596-4389-8045-4e7596e3896d"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "id": "0d17b84c-f0b5-4571-97b8-4cf0b59571ba",
+      "name": "Aside",
+      "type": "SYSTEM_FOLDER",
+      "order": 0,
+      "published": true,
+      "visibility": "PUBLIC",
+      "lastModificationDate": 1646992919079,
+      "contentType": "application/json",
+      "homepage": false,
+      "parentPath": "",
+      "excludedAccessControls": false,
+      "accessControls": [],
+      "api": "d71e5f71-a219-4acd-9e5f-71a2197acdee"
+    }
+  ],
+  "plans": [
+    {
+      "id": "31248a82-0d2c-4cc7-a48a-820d2cbcc7b6",
+      "name": "paid",
+      "description": "test",
+      "validation": "AUTO",
+      "security": "API_KEY",
+      "type": "API",
+      "status": "PUBLISHED",
+      "api": "d71e5f71-a219-4acd-9e5f-71a2197acdee",
+      "order": 0,
+      "characteristics": [],
+      "created_at": 1646992918876,
+      "updated_at": 1646992918876,
+      "paths": {},
+      "flows": [
+        {
+          "name": "",
+          "path-operator": {
+            "path": "/",
+            "operator": "STARTS_WITH"
+          },
+          "condition": "",
+          "consumers": [],
+          "methods": [],
+          "pre": [
+            {
+              "name": "Rate Limit",
+              "description": "",
+              "enabled": true,
+              "policy": "rate-limit",
+              "configuration": {
+                "async": false,
+                "addHeaders": false,
+                "rate": {
+                  "periodTime": 1,
+                  "limit": 100,
+                  "periodTimeUnit": "MINUTES",
+                  "key": ""
+                }
+              }
+            },
+            {
+              "name": "Mock",
+              "description": "",
+              "enabled": true,
+              "policy": "mock",
+              "configuration": {
+                "content": "toto",
+                "status": "200"
+              }
+            }
+          ],
+          "post": [],
+          "enabled": true
+        }
+      ],
+      "comment_required": false
+    }
+  ],
+  "metadata": [
+    {
+      "key": "email-support",
+      "name": "email-support",
+      "format": "MAIL",
+      "value": "${(api.primaryOwner.email)!''}",
+      "defaultValue": "support@change.me",
+      "apiId": "d71e5f71-a219-4acd-9e5f-71a2197acdee"
+    }
+  ],
+  "id": "d71e5f71-a219-4acd-9e5f-71a2197acdee",
+  "path_mappings": [],
+  "proxy": {
+    "virtual_hosts": [
+      {
+        "path": "/pet"
+      }
+    ],
+    "strip_context_path": false,
+    "preserve_host": false,
+    "groups": [
+      {
+        "name": "default-group",
+        "endpoints": [
+          {
+            "backup": false,
+            "inherit": true,
+            "name": "default",
+            "weight": 1,
+            "type": "http",
+            "target": "https://petstore.swagger.io/v2/pet/1"
+          }
+        ],
+        "load_balancing": {
+          "type": "ROUND_ROBIN"
+        },
+        "http": {
+          "connectTimeout": 5000,
+          "idleTimeout": 60000,
+          "keepAlive": true,
+          "readTimeout": 10000,
+          "pipelining": false,
+          "maxConcurrentConnections": 100,
+          "useCompression": true,
+          "followRedirects": false
+        }
+      }
+    ]
+  },
+  "response_templates": {},
+  "primaryOwner": {
+    "id": "822e2e83-8b14-4988-ae2e-838b14898872",
+    "displayName": "admin",
+    "type": "USER"
+  }
+}
