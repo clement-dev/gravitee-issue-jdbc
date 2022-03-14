@@ -1,7 +1,29 @@
 version: '3.5'
 
 services:
-
+  ###################
+  # PROXY
+  ###################
+  traefik:
+    image: "traefik:v2.5"
+    container_name: "traefik"
+    hostname: "traefik"
+    command:
+      - --log.level=DEBUG
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --entryPoints.web.forwardedHeaders.insecure=true
+      - --entrypoints.web.address=:80
+    labels:
+      - "traefik.enable=true"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - gravitee-net
 #  ###################
 #  # GRAVITEE APIM
 #  ###################
@@ -31,11 +53,15 @@ services:
      - gravitee-net
 
   gateway:
-   image: graviteeio/apim-gateway:3.12.1
+   build:
+     context: ./custom-gateway
+     dockerfile: Dockerfile
    restart: always
+   labels:
+     - "traefik.enable=true"
    ports:
-     - "0.0.0.0:8082:8082"
-     # - "8082"
+     # - "0.0.0.0:8082:8082"
+     - "8082"
    depends_on:
      - db
      - elasticsearch
@@ -49,7 +75,9 @@ services:
      - gravitee-net
 
   management_api:
-   image: graviteeio/apim-management-api:3.15.4
+   build:
+     context: ./custom-apim
+     dockerfile: Dockerfile
    container_name: gio_apim_management_api
    restart: always
    ports:
